@@ -158,3 +158,42 @@ class Solution
         Console.ReadKey();
     }
 }
+
+
+//different method
+
+class UserManager
+{
+    public static (List<User> updated, List<User> inserted) CompareUsers(List<User> usersListInDB, List<User> newUsersList)
+    {
+        var updated = new List<User>();
+        var inserted = new List<User>();
+
+        foreach (var user in newUsersList)
+        {
+            var userInDB = usersListInDB.FirstOrDefault(u => u.Id == user.Id);
+            if (userInDB != null)
+            {
+                var properties = user.GetType().GetProperties();
+                foreach (var property in properties)
+                {
+                    var valueInDB = property.GetValue(userInDB);
+                    var valueInNewList = property.GetValue(user);
+                    if ((valueInDB == null && valueInNewList == null) || (valueInDB == null || valueInNewList == null))
+                        continue;
+                    if (!valueInDB.Equals(valueInNewList))
+                    {
+                        updated.Add(user);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                inserted.Add(user);
+            }
+        }
+
+        return (updated, inserted);
+    }
+}
