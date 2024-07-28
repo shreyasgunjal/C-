@@ -68,55 +68,50 @@ class ApplicationAuthState : IApplicationAuthState
 
     public string Login(IUser user)
     {
-        var registeredUser = RegisteredUsers.FirstOrDefault(u => u.Email == user.Email);
-
+        var registeredUser = RegisteredUsers.FirstOrDefault(x => x.Email == user.Email);
         if (registeredUser == null)
         {
             return $"{user.Email} is not registered!";
         }
-
         if (registeredUser.IncorrectAttempt >= 3)
         {
+            registeredUser.IncorrectAttempt++;
             return $"{user.Email} is blocked!";
         }
 
-        if (!AllowedLocations.Contains(user.Location))
+        if (registeredUser.Password == user.Password)
         {
-            return $"{user.Email} is not allowed to login from this location!";
+            if (AllowedLocations.Any(x => x == user.Location))
+            {
+                IUser? loggedIn = UsersLoggedIn.FirstOrDefault(x => x.Email == user.Email);
+                if (loggedIn != null)
+                {
+                    if (user.Location != loggedIn.Location)
+                    {
+                        return $"{user.Email} is already logged in from another location!";
+                    }
+                    else
+                    {
+                        return $"{user.Email} is already logged in!";
+                    }
+                }
+                else
+                {
+                    UsersLoggedIn.Add(user);
+                    registeredUser.IncorrectAttempt = 0;
+                    return $"{user.Email} logged in successfully!";
+                }
+            }
+            else
+            {
+                return $"{user.Email} is not allowed to login from this location!";
+            }
         }
-
-        
-
-
-        if (registeredUser.Password != user.Password)
+        else
         {
             registeredUser.IncorrectAttempt++;
             return $"{user.Email} password is incorrect!";
         }
-
-        if (UsersLoggedIn.Any(u => u.Email == user.Email))
-        {
-            var loggedInUser = UsersLoggedIn.FirstOrDefault(u => u.Email == user.Email);
-            if (loggedInUser.Location != user.Location)
-            {
-                return $"{user.Email} is already logged in from another location!";
-            }
-            else
-            {
-                return $"{user.Email} is already logged in!";
-            }
-        }
-
-        UsersLoggedIn.Add(registeredUser);
-        registeredUser.IncorrectAttempt = 0;
-        return $"{user.Email} logged in successfully!";
-
-
-        
-
-       
-
-
     }
 
     public string Logout(IUser user)
