@@ -76,12 +76,12 @@ static class UserManager
                         newUser.Status == existingUser.Status &&
                         newUser.Credit == existingUser.Credit)
                     {
-                    inserted.Add(newUser);
+                    updated.Add(newUser);
                     }                   
                 }
                 else
                 {
-                    updated.Add(newUser);
+                    inserted.Add(newUser);
             }
             }
 
