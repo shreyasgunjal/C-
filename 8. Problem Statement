@@ -1,0 +1,124 @@
+//DSA
+
+using System;
+
+namespace MultipleExceptionBlocks
+{
+    // Define the Operation class
+    public class Operation
+    {
+        // Auto-implemented properties
+        public double Num1 { get; set; }
+        public double Num2 { get; set; }
+        public char Opr { get; set; }
+
+        // Constructor
+        public Operation(double num1, double num2, char opr)
+        {
+            Num1 = num1;
+            Num2 = num2;
+            Opr = opr;
+        }
+    }
+
+    // Define the Source class
+    public class Source
+    {
+        // Exception handling method
+        public string ExceptionHandle(Operation o)
+        {
+            try
+            {
+                // Check if the operator is valid
+                if (o.Opr != '+' && o.Opr != '-' && o.Opr != '*' && o.Opr != '/')
+                {
+                    throw new InvalidOperationException("Invalid operator");
+                }
+
+                // Check for division by zero if the operator is '/'
+                if (o.Opr == '/' && o.Num2 == 0)
+                {
+                    throw new DivideByZeroException("Cannot divide by zero");
+                }
+
+                // If no exceptions found
+                return "No Exception Found";
+            }
+            catch (InvalidOperationException ex)
+            {
+                return ex.Message;
+            }
+            catch (DivideByZeroException ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        // Calculator method
+        public string Calculator(Operation o)
+        {
+            try
+            {
+                // Handle the exception first
+                string exceptionResult = ExceptionHandle(o);
+                if (exceptionResult != "No Exception Found")
+                {
+                    return exceptionResult;
+                }
+
+                // Perform the arithmetic operation
+                switch (o.Opr)
+                {
+                    case '+':
+                        return (o.Num1 + o.Num2).ToString();
+                    case '-':
+                        return (o.Num1 - o.Num2).ToString();
+                    case '*':
+                        return (o.Num1 * o.Num2).ToString();
+                    case '/':
+                        if (o.Num2 == 0)
+                        {
+                            return "Divide by Exception";
+                        }
+                        return (o.Num1 / o.Num2).ToString();
+                    default:
+                        return "Invalid operation";
+                }
+            }
+            catch (Exception ex)
+            {
+                // Return the exception message if something unexpected occurs
+                return ex.Message;
+            }
+        }
+    }
+
+    // Test the implementation
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Source source = new Source();
+
+            // Test case 1: Valid operation
+            Operation op1 = new Operation(10, 5, '+');
+            Console.WriteLine(source.Calculator(op1)); // Should output: 15
+
+            // Test case 2: Division by zero
+            Operation op2 = new Operation(10, 0, '/');
+            Console.WriteLine(source.Calculator(op2)); // Should output: Divide by Exception
+
+            // Test case 3: Invalid operator
+            Operation op3 = new Operation(10, 5, '%');
+            Console.WriteLine(source.ExceptionHandle(op3)); // Should output: Invalid operator
+
+            // Test case 4: Valid subtraction
+            Operation op4 = new Operation(10, 5, '-');
+            Console.WriteLine(source.Calculator(op4)); // Should output: 5
+
+            // Test case 5: Valid multiplication
+            Operation op5 = new Operation(10, 5, '*');
+            Console.WriteLine(source.Calculator(op5)); // Should output: 50
+        }
+    }
+}
